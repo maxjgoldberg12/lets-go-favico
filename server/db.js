@@ -97,8 +97,5 @@ module.exports.runSeed = async function runSeed() {
 };
 
 module.exports.updateSeed = function updateSeed(rowId) {
-  return knex('seed')
-    .where('id', rowId)
-    .update('processed', true)
-    .return();
+  return knex('seed').where('id', rowId).update('processed', true).return();
 };

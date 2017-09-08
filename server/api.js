@@ -24,7 +24,6 @@ router.get(
   async (req, res) => {
     try {
       // Throw an error for invalid query
-      const errors = validationResult(req);
       if (!validationResult(req).isEmpty()) {
         return res.status(422).json({ error: 'Please enter a valid URL.' });
       }

@@ -46,7 +46,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="App-header">
-          <h2>Let's Go Favico!</h2>
+          <h2>
+            {"Let's Go Favico!"}
+          </h2>
           <p>
             A toy by
             <a href="https://github.com/maxjgoldberg12"> Max Goldberg</a>
@@ -72,11 +74,10 @@ class App extends Component {
   }
 }
 
-const FaviconImage = function (props, context) {
+const FaviconImage = function (props) {
   return (
     <div className="favicon-container">
       <img src={props.faviconUrl} alt={props.errorMsg} />
-      {/* {props.errorMsg} */}
     </div>
   );
 };
