@@ -1,15 +1,32 @@
 # Let's Go Favico!
 ---
 
-A simple app to fetch the favicon from any URL.
+A simple app to fetch the favicon from any URL. Caches previously fetched favicon URLs on a Postgres database for quicker recall later.
 
-Architecture courtesy of https://github.com/mars/heroku-cra-node
+## Features
+- A `node-fetch` (https://github.com/bitinn/node-fetch) and `cheerio` (https://github.com/cheeriojs/cheerio) driven favicon request and parse method.
+- Human-useful error responses in the UI.
+- Query string validation and cleanup for requested URLs.
+- Rudimentary security with `helmet` (https://github.com/helmetjs/helmet)
+- SQL safety with `knex` (https://github.com/tgriesser/knex)
+- A method that tries to bulk fetch favicon URLs using a `seed` table.
+- All the goodies that come with `create-react-app`
+- Pretty (https://github.com/prettier/prettier) and mostly eslint'd.
+
+
+## Pain Points
+- Always returns the first favicon found in a html document, while there are often several and some are "better" than others.
+- No tests.
+- Bulk fetch method is slow and breaks for rare URLs that return unusual header.
+
+
+Architecture and starter courtesy of https://github.com/mars/heroku-cra-node
 
 ---
 
-## Design Points
+## Repo Design Points
 
-A combo of two npm projects, the backend server and the frontend UI. So there are two `package.json` configs.
+A combo of two npm projects, the backend Express server and the frontend React UI. So there are two `package.json` configs.
 
   1. [`package.json`](package.json) for [Node server](server/) & [Heroku deploy](https://devcenter.heroku.com/categories/deployment)
       * `heroku-postbuild` script compiles the webpack bundle during deploy
@@ -19,14 +36,9 @@ A combo of two npm projects, the backend server and the frontend UI. So there ar
 
 ---
 
-## Deploy to Heroku
+## Deploying to Heroku
 
-```bash
-git clone https://github.com/mars/heroku-cra-node.git
-cd heroku-cra-node/
-heroku create
-git push heroku master
-```
+Just push the repo to Heroku.
 
 This deployment will automatically:
 
@@ -37,8 +49,6 @@ This deployment will automatically:
   * launch the web process with `npm start`
     * serves `../react-ui/build/` as static files
     * customize by adding API, proxy, or route handlers/redirectors
-
-👓 More about [deploying to Heroku](https://devcenter.heroku.com/categories/deployment).
 
 ---
 
@@ -52,15 +62,17 @@ In a terminal:
 # Initial setup
 bin/setup
 
-# Start the server
-npm start
+# Start the server with nodemon (restarts on file changes)
+npm run dev
 ```
 
+Starts the server listening at `localhost:5000`.
 
-### Run the React UI
+
+### Run the React UI locally
 
 By default, the React app is configured to proxy backend requests to the
-deployed API server. To develop against the local Node server, change `react-ui`
+deployed API server. To develop against the local Node server, set `react-ui`
 to proxy to `http://localhost:5000` (See [`"proxy"`
 config](react-ui/package.json))
 
@@ -73,7 +85,7 @@ cd react-ui/
 # Initial setup
 npm install
 
-# Start the server
+# Start the React server
 npm start
 ```
 
