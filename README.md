@@ -18,6 +18,7 @@ A simple app to fetch the favicon from any URL. Caches previously fetched favico
 - Always returns the first favicon found in a html document, while there are often several and some are "better" than others.
 - No tests.
 - Bulk fetch method is slow and breaks for rare URLs that return unusual header.
+- Favicon parser could return a URL for something that isn't really a favicon image file if the fetched webpage has a bad `<link>` tag.
 
 
 Architecture and starter courtesy of https://github.com/mars/heroku-cra-node
