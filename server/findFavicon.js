@@ -26,6 +26,10 @@ async function findFaviconUrl(lookupUrl) {
     if (favicons.get().length === 0) {
       favicons = $('link[rel~="Icon"]', 'head');
     }
+    // Deal with weirdos who only have "rel='apple-touch-icon'"
+    if (favicons.get().length === 0) {
+      favicons = $('link[rel~="apple-touch-icon"]', 'head');
+    }
 
     console.log(`Found ${favicons.get().length} favicons!`);
 
