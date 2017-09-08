@@ -1,15 +1,11 @@
 .App {
   text-align: center;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+  font-family: 'Verdana', sans-serif;
 }
 
 .App-header {
-  background-color: #222;
-  height: 150px;
+  background-color: #618eff;
+  height: 50px;
   padding: 20px;
   color: white;
 }
@@ -19,6 +15,17 @@
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.favicon-container {
+  padding: 2em;
+  width: 100px;
+  margin: 1em auto;
+  border: 1px solid #eeeeee;
 }

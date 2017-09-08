@@ -1,58 +1,76 @@
 const express = require('express');
 const { query, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
-const cheerio = require('cheerio');
-const fetch = require('node-fetch');
+const finder = require('./findFavicon');
+
+const db = require('./db');
 
 const router = express.Router();
 
+// Endpoint to get the favicon for a URL
+// @param {string} lookup-url - The URL to fetch the favicon from.
+// Can be with or without protocol (http://)
+// @param {string} [fresh='no'] - Should be fetch the current favicon even if
+// we have a record in the DB already?
+// Example: letsgofavico.com/api/v1/favicon?lookup-url=example.com&fresh=true
 router.get(
   '/v1/favicon',
-  // Validate the query is a URL
-  query('lookup-url')
-    .isURL()
-    .withMessage('Please request a valid URL'),
+  [
+    // Validate the query is a URL
+    query('lookup-url')
+      .isURL()
+      .withMessage('Please request a valid URL'),
+    // Validate fresh is 'yes' or 'no', if it exists
+    query('fresh')
+      .isIn(['yes', 'no'])
+      .optional(),
+  ],
   async (req, res) => {
     try {
       // Throw an error for invalid query
       const errors = validationResult(req);
       if (!validationResult(req).isEmpty()) {
-        return res.status(422).json({ errors: errors.mapped() });
+        return res.status(422).json({ error: 'Please enter a valid URL.' });
       }
 
-      // Get our valid query
+      // Get our valid lookupUrl
       let lookupUrl = matchedData(req)['lookup-url'];
 
-      // Make sure it's an absolute URL
-      // TODO: Handle path relative ('/files/thing') and protocol-relative ('//stuff.com') strings
+      // Handle no-protocol URLs ("example.com")
       if (!lookupUrl.match(/^http/)) {
         lookupUrl = `http://${lookupUrl}`;
       }
-      console.log(lookupUrl);
 
-      // Fetch the page's html
-      const html = await (await fetch(lookupUrl)).text();
+      // If we need a fresh lookup
+      if (matchedData(req).fresh) {
+        const faviconUrl = await finder.findAndSaveFaviconUrl(lookupUrl);
+        return res.json({ faviconUrl });
+      }
 
-      // Load html into cheerio
-      const $ = cheerio.load(html);
+      // Otherwise, check the DB for a matching faviconUrl
+      const mostRecentFaviconUrl = await db.getFaviconUrl(lookupUrl);
+      if (mostRecentFaviconUrl) {
+        console.log(`Returning saved url for ${lookupUrl}`);
+        return res.json({ faviconUrl: mostRecentFaviconUrl.favicon_url });
+      }
 
-      // Select the favicons on the page
-      const favicons = $('link[rel="icon"]', 'head');
-      console.log(`Found ${favicons.get().length} favicons!`);
-
-      // Get the URL of the first favicon we found
-      const faviconUrl = favicons.attr('href');
-      console.log(faviconUrl);
-      // TODO Coerce href back to an absolute URL
-      // TODO Map over all found icons and pick the best or return all
-
-      // Return faviconUrl
-      return res.json({ faviconUrl });
-    } catch (err) {
+      // If we didn't get a match in DB, fetch it fresh
+      const newFaviconUrl = await finder.findAndSaveFaviconUrl(lookupUrl);
+      return res.json({ faviconUrl: newFaviconUrl });
+    } catch (error) {
       // Catch any internal errors
-      return res.status(422).json(`${err.name} - ${err.message}`);
+      return res.status(422).json(`${error.name} - ${error.message}`);
     }
   },
 );
+
+router.post('/v1/seed', (req, res) => {
+  try {
+    db.runSeed();
+    return res.json({});
+  } catch (error) {
+    return res.status(422).json(`${error.name} - ${error.message}`);
+  }
+});
 
 module.exports = router;
