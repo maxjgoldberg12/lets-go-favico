@@ -17,13 +17,9 @@ router.get(
   '/v1/favicon',
   [
     // Validate the query is a URL
-    query('lookup-url')
-      .isURL()
-      .withMessage('Please request a valid URL'),
+    query('lookup-url').isURL().withMessage('Please request a valid URL'),
     // Validate fresh is 'yes' or 'no', if it exists
-    query('fresh')
-      .isIn(['yes', 'no'])
-      .optional(),
+    query('fresh').isIn(['yes', 'no']).optional(),
   ],
   async (req, res) => {
     try {
@@ -56,10 +52,15 @@ router.get(
 
       // If we didn't get a match in DB, fetch it fresh
       const newFaviconUrl = await finder.findAndSaveFaviconUrl(lookupUrl);
+      if (!newFaviconUrl) {
+        return res.status(404).json({ error: 'Favicon unavailable :(' });
+      }
       return res.json({ faviconUrl: newFaviconUrl });
     } catch (error) {
       // Catch any internal errors
-      return res.status(422).json(`${error.name} - ${error.message}`);
+      return res
+        .status(422)
+        .json({ error: `${error.name} - ${error.message}` });
     }
   },
 );
@@ -69,7 +70,7 @@ router.post('/v1/seed', (req, res) => {
     db.runSeed();
     return res.json({});
   } catch (error) {
-    return res.status(422).json(`${error.name} - ${error.message}`);
+    return res.status(422).json({ error: `${error.name} - ${error.message}` });
   }
 });
 

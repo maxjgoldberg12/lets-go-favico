@@ -10,7 +10,7 @@ class App extends Component {
     this.state = {
       faviconUrl: '',
       requestUrl: '',
-      errorMsg: '',
+      errorMsg: 'Nothing yet.',
     };
     this.handleGetFavicon = this.handleGetFavicon.bind(this);
     this.handleChangeInput = this.handleChangeInput.bind(this);
@@ -75,9 +75,8 @@ class App extends Component {
 const FaviconImage = function (props, context) {
   return (
     <div className="favicon-container">
-      <img src={props.faviconUrl} />
-      {props.faviconUrl === false ? 'Unavailable :(' : ''}
-      {props.errorMsg}
+      <img src={props.faviconUrl} alt={props.errorMsg} />
+      {/* {props.errorMsg} */}
     </div>
   );
 };
