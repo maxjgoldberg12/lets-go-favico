@@ -47,6 +47,10 @@ class App extends Component {
       <div className="App">
         <div className="App-header">
           <h2>Let's Go Favico!</h2>
+          <p>
+            A toy by
+            <a href="https://github.com/maxjgoldberg12"> Max Goldberg</a>
+          </p>
         </div>
         <p className="App-intro">
           Enter a webpage URL to retrieve its favicon.
